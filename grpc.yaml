@@ -1,0 +1,161 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-example
+  labels:
+    app: server-example
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: server-example
+  template:
+    metadata:
+      labels:
+        app: server-example
+    spec:
+      containers:
+      - name: server-example
+        image: docker-local:5000/server
+        env:
+          - name: DATABASE_URL
+            value: postgres://admin:password@db/books
+        ports:
+          - containerPort: 50051
+            name: server-example
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: server-example
+spec:
+  selector:
+    app: server-example
+  ports:
+    - port: 50051
+      targetPort: 50051
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client-example
+  labels:
+    app: client-example
+spec:
+  containers:
+  - name: client-example
+    image: docker-local:5000/cli
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: db
+  labels:
+    app: db
+spec:
+  containers:
+  - name: db
+    image: postgres:11.4-alpine
+    env:
+      - name: POSTGRES_USER
+        value: admin
+      - name: POSTGRES_DB
+        value: books
+      - name: POSTGRES_PASSWORD
+        value: password
+    ports:
+      - containerPort: 5432
+        name: db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  labels:
+    app: db
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: db
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-hello-world
+  labels:
+    app: server-hello-world
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: server-hello-world
+  template:
+    metadata:
+      labels:
+        app: server-hello-world
+    spec:
+      containers:
+      - name: server-hello-world
+        image: docker-local:5000/server-hello-world
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: server-hello-world
+spec:
+  selector:
+    app: server-hello-world
+  ports:
+    - port: 50051
+      targetPort: 50051
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client-hello-world
+  labels:
+    app: client-hello-world
+spec:
+  containers:
+  - name: client-hello-world
+    image: docker-local:5000/cli-hello-world
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-grpc
+  labels:
+    app: nginx-grpc
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-grpc
+  template:
+    metadata:
+      labels:
+        app: nginx-grpc
+    spec:
+      containers:
+        - name: nginx-grpc
+          image: docker-local:5000/nginx-grpc
+          ports:
+            - containerPort: 50051
+              name: nginx-grpc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: server
+spec:
+  selector:
+    app: nginx-grpc
+  ports:
+    - port: 50051
+      targetPort: 50051
+  type: LoadBalancer
