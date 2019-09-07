@@ -1,0 +1,6 @@
+[submodule "rust-grpc-example"]
+	path = rust-grpc-example
+	url = ../rust-grpc-example
+[submodule "rust-grpc-hello-world"]
+	path = rust-grpc-hello-world
+	url = ../rust-grpc-hello-world
